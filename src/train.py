@@ -25,9 +25,12 @@ def train(data_path):
     dataset = get_dataset(dataset="camelyon17", root_dir=data_path, download=True)
     # print(type(dataset))
 
-    total_experiment_accuracy = 0
+    total_experiment_test_accuracy = 0
+    total_experiment_validation_accuracy = 0
     avg_experiment_accuracy = 0
     validation_accuracy = 0
+    avg_test_accuracy = 0
+    avg_validation_accuracy = 0
     for n in range(experiment_num):
         train_data_a = dataset.get_subset(
             "train",
@@ -83,7 +86,7 @@ def train(data_path):
         for epoch in range(epoch):
             # train
             net.train()
-            for x, y, metadata in tqdm(train_loader_a, desc=f'epoch {epoch} train:'):
+            for x, y, metadata in tqdm(train_loader_a, desc=f'epoch {epoch} train:', leave=False):
                 x, y = x.to(device), y.to(device)
                 optimizer.zero_grad()
 
@@ -99,7 +102,7 @@ def train(data_path):
             total_num = 0
 
             with torch.no_grad():
-                pbar = tqdm(val_loader_a, desc=f'epoch {epoch} validation:')
+                pbar = tqdm(val_loader_a, desc=f'epoch {epoch} validation:', leave=False)
                 for x, y, metadata in pbar:
                     x, y = x.to(device), y.to(device)
                     outputs = net(x)
@@ -117,16 +120,17 @@ def train(data_path):
                 max_accuracy = accuracy
                 torch.save(net.state_dict(), f'../models/model{model_num}_acc{max_accuracy}.pt')
                 print(f'save model num: {model_num}')
-            print('---------------------------------------------------------------------------')
+            # print('---------------------------------------------------------------------------')
 
         print(f'epoch {epoch} : validation_accuracy={max_accuracy}')
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.plot(range(len(accuracys)), accuracys, label='validation')
-        ax.set_xlabel('epoch')
-        ax.set_ylabel('accuracy')
-        ax.set_title(f'validation accuracy epoch')
-        plt.legend()
-        fig.show()
+        total_experiment_validation_accuracy += max_accuracy
+        # fig, ax = plt.subplots(figsize=(10, 8))
+        # ax.plot(range(len(accuracys)), accuracys, label='validation')
+        # ax.set_xlabel('epoch')
+        # ax.set_ylabel('accuracy')
+        # ax.set_title(f'validation accuracy epoch')
+        # plt.legend()
+        # fig.show()
 
         # test集上进行测试
         net.load_state_dict(torch.load(f'../models/model{model_num}_acc{max_accuracy}.pt'))
@@ -135,7 +139,7 @@ def train(data_path):
         total_num = 0
 
         with torch.no_grad():
-            pbar = tqdm(test_loader_a, desc='test:')
+            pbar = tqdm(test_loader_a, desc='test:', leave=False)
             for x, y, metadata in pbar:
                 x, y = x.to(device), y.to(device)
                 outputs = net(x)
@@ -145,12 +149,14 @@ def train(data_path):
                 pbar.set_postfix(acc=acc_tmp, refresh=False)
                 total_exact_num += exact_num
                 total_num += len(y)
-        accuracy = total_exact_num / total_num
-        print(f'epoch {epoch} : test accuracy: {accuracy}')
-        print('---------------------------------------------------------------------------')
-        total_experiment_accuracy += accuracy
-    avg_accuracy = total_experiment_accuracy / experiment_num
-    print('average test accuracy: ', avg_accuracy)
+        test_accuracy = total_exact_num / total_num
+        print(f'epoch {epoch} : test accuracy: {test_accuracy}')
+        # print('---------------------------------------------------------------------------')
+        total_experiment_test_accuracy += test_accuracy
+    avg_validation_accuracy = total_experiment_validation_accuracy / experiment_num
+    avg_test_accuracy = total_experiment_test_accuracy / experiment_num
+    print(f'experiment num: {experiment_num}, average validation accuracy: {avg_validation_accuracy}')
+    print(f'experiment num: {experiment_num}, average test accuracy: {avg_test_accuracy}')
 
 
 if __name__ == '__main__':
