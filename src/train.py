@@ -153,6 +153,7 @@ def train(data_path):
         print(f'epoch {epoch} : test accuracy: {test_accuracy}')
         # print('---------------------------------------------------------------------------')
         total_experiment_test_accuracy += test_accuracy
+    # print average of all emperiments
     avg_validation_accuracy = total_experiment_validation_accuracy / experiment_num
     avg_test_accuracy = total_experiment_test_accuracy / experiment_num
     print(f'experiment num: {experiment_num}, average validation accuracy: {avg_validation_accuracy}')
@@ -161,5 +162,4 @@ def train(data_path):
 
 if __name__ == '__main__':
     data_path = os.path.normpath(r"F:\Datasets\WILDS")
-    # git test
     train(data_path)
