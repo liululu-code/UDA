@@ -115,7 +115,7 @@ def train(data_path):
 
             if accuracy > max_accuracy:
                 max_accuracy = accuracy
-                torch.save(net.state_dict(), f'../models/model{model_num}_acc{max_accuracy}.pth')
+                torch.save(net.state_dict(), f'../models/model{model_num}_acc{max_accuracy}.pt')
                 print(f'save model num: {model_num}')
             print('---------------------------------------------------------------------------')
 
@@ -129,7 +129,7 @@ def train(data_path):
         fig.show()
 
         # test集上进行测试
-        net.load_state_dict(torch.load(f'../models/model{model_num}_acc{max_accuracy}.pth'))
+        net.load_state_dict(torch.load(f'../models/model{model_num}_acc{max_accuracy}.pt'))
         net.eval()
         total_exact_num = 0
         total_num = 0
