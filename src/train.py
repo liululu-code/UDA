@@ -161,5 +161,5 @@ def train(data_path):
 
 if __name__ == '__main__':
     data_path = os.path.normpath(r"F:\Datasets\WILDS")
-
+    # git test
     train(data_path)
